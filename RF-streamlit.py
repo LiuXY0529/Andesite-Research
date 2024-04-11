@@ -57,13 +57,10 @@ if uploaded_file is not None:
     Predict_Test_OC = RF_OC.predict(Data_test_value)#预测OC
     Predict_Test_Type = 10*Predict_Test_RMI+Predict_Test_OC#综合结果
     Predict_Test_Type[Predict_Test_Type==1]=0 #将预测为MORA+Continental（1）的结果修正为MORA+Oceanic（0）
-    #0-MORA, 10-OAA, 20-OIA, 11-CAA, 21-CRA
+        
+    #绘制预测结果柱状图
     Type = [0,10,20,11,21]
     Tectonic = ['MORA','OAA','OIA','CAA','CRA']
-    Data_test_all['Type']=Predict_Test_Type#将预测结果添加到原数据表格
-    Data_test_all.to_csv('Data_predicted.csv',index=False)
-    
-    #绘制预测结果柱状图
     Predict_Result = []
     for j in range(5):
         Count_Num = np.sum(Predict_Test_Type==Type[j])
@@ -80,6 +77,14 @@ if uploaded_file is not None:
     plt.ylabel('Percentage(%)',fontname='Times New Roman',fontsize=14)
     plt.ylim(0,100)
     st.pyplot(fig)
+    
+    #0-MORA, 10-OAA, 20-OIA, 11-CAA, 21-CRA
+    for i in range(5):
+        Predict_Test_Type = pd.DataFrame(Predict_Test_Type)
+        Predict_Test_Type.replace(Type[i],Tectonic[i],inplace=True)
+    Predict_Test_Type = list(Predict_Test_Type.values)
+    Data_test_all['Type']=Predict_Test_Type#将预测结果添加到原数据表格
+    Data_test_all.to_csv('Data_predicted.csv',index=False)
     
     #创建下载按钮让用户下载含预测结果的CSV文件
     st.download_button(label='Download Predicted Data',
